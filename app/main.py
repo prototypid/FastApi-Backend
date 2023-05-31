@@ -1,18 +1,21 @@
 from fastapi import FastAPI, Response, status, HTTPException
 from fastapi.params import Body
-from schemas import Post
+from .schemas import Post
 
 app = FastAPI()
+
 
 @app.get('/posts')
 def get_all_posts():
     return {'data': 'There is no post currently.'}
+
 
 @app.post('/create_posts')
 # def create_new_post(data: dict = Body()):
 def create_new_post(data: Post):
     print(data)
     return {'message': 'Successfully recieved your request.'}
+
 
 @app.get('/posts/{post_id}')  
 def get_post_with_id(post_id: int, response: Response):
