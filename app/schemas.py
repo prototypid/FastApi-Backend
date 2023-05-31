@@ -1,9 +1,17 @@
+from datetime import datetime
 from pydantic import BaseModel
-from typing import Optional
 
-class Post(BaseModel):
-
+class PostBase(BaseModel):
     title: str
-    post: str
-    publish: bool = True
-    rating: Optional[int] = None
+    content: str
+    published: bool = True
+
+class PostCreate(PostBase):
+    pass
+
+class PostResponse(PostBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
