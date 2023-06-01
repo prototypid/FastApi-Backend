@@ -8,8 +8,6 @@ from .database import engine, get_db
 # create our models in the database
 models.Base.metadata.create_all(bind=engine)
 
-
-
 app = FastAPI()
 
 # while True:
@@ -36,7 +34,7 @@ def get_all_posts(db: Session = Depends(get_db)):
     return posts
 
 
-@app.post('/create_posts', status_code=status.HTTP_201_CREATED, response_model=schemas.PostResponse)
+@app.post('/posts', status_code=status.HTTP_201_CREATED, response_model=schemas.PostResponse)
 # def create_new_post(data: dict = Body()):
 def create_new_post(data: schemas.PostCreate, db: Session = Depends(get_db)):
     post = models.Post(**data.dict())
@@ -82,4 +80,4 @@ def update_post_with_id(post_id: int, data: schemas.PostCreate, db: Session = De
         )
     post_query.update(data.dict(), synchronize_session=False)
     db.commit()
-    return  post_query.first()
+    return post_query.first()

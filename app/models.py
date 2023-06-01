@@ -1,5 +1,4 @@
 from datetime import timezone
-from sqlite3 import Timestamp
 from .database import Base
 from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.sql.sqltypes import TIMESTAMP
