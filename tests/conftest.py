@@ -1,3 +1,4 @@
+import logging
 import pytest
 from app import models
 from app.main import app
@@ -67,3 +68,24 @@ def test_posts(session):
 
     posts = session.query(models.Post).all()
     return posts
+
+
+@pytest.fixture
+def test_user(client):
+    user_details = {
+        'email': 'me@example.com',
+        'password': 'password1234'
+    }
+
+    try:
+        res = client.post('/users', json=user_details)
+
+        assert res.status_code == 201
+    except AssertionError as e:
+        logging.error(e)
+        logging.error('User was not created')
+        pass
+    else:
+        user = res.json()
+        user['password'] = user_details['password']
+        return user
