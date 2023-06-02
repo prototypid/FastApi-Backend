@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from . import models
 from .database import engine
-from .routes import user, post
+from .routes import user, post, auth
 
 
 # create our models in the database
@@ -12,7 +12,7 @@ app = FastAPI()
 
 app.include_router(post.router)
 app.include_router(user.router)
-
+app.include_router(auth.router)
 # while True:
 #     try:
 #         conn = psycopg2.connect(

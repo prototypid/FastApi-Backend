@@ -10,8 +10,9 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 # to talk to database
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# all our modesl will be extending this base class
+# all our models will be extending this base class
 Base = declarative_base()
+
 
 # Dependency
 def get_db():
