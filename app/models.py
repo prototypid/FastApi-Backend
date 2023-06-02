@@ -1,3 +1,5 @@
+from sqlalchemy.orm import Relationship
+
 from .database import Base
 from sqlalchemy import Boolean, Column, Integer, String, ForeignKey
 from sqlalchemy.sql.sqltypes import TIMESTAMP
@@ -12,6 +14,7 @@ class Post(Base):
     published = Column(Boolean, nullable=False, server_default='TRUE')
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
     author_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'),nullable=False)
+    author = Relationship('User')
 
 
 class User(Base):

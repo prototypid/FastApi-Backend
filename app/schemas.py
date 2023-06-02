@@ -14,10 +14,19 @@ class PostCreate(PostBase):
     pass
 
 
+class UserCreateResponse(BaseModel):
+    id: int
+    email: EmailStr
+
+    class Config:
+        orm_mode = True
+
+
 class PostResponse(PostBase):
     id: int
     created_at: datetime
     author_id: int
+    author: UserCreateResponse
 
     class Config:
         orm_mode = True
@@ -26,14 +35,6 @@ class PostResponse(PostBase):
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
-
-
-class UserCreateResponse(BaseModel):
-    id: int
-    email: EmailStr
-
-    class Config:
-        orm_mode = True
 
 
 class UserLogin(BaseModel):
