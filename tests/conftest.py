@@ -1,6 +1,6 @@
 import logging
 import pytest
-from app import models
+from app import models, oauth2
 from app.main import app
 from app.database import Base, get_db
 from sqlalchemy import create_engine
@@ -63,7 +63,8 @@ def test_posts(session):
 
     session.add_all(posts)
     # session.add_all([models.Post(title="first title", content="first content", owner_id=test_user['id']),
-    #                 models.Post(title="2nd title", content="2nd content", owner_id=test_user['id']), models.Post(title="3rd title", content="3rd content", owner_id=test_user['id'])])
+    #                 models.Post(title="2nd title", content="2nd content", owner_id=test_user['id']),
+    #                 models.Post(title="3rd title", content="3rd content", owner_id=test_user['id'])])
     session.commit()
 
     posts = session.query(models.Post).all()
@@ -89,3 +90,18 @@ def test_user(client):
         user = res.json()
         user['password'] = user_details['password']
         return user
+
+
+@pytest.fixture
+def token(test_user):
+    return oauth2.create_access_token({'user_id': test_user['id']})
+
+
+@pytest.fixture
+def authorized_client(client, token):
+    client.headers = {
+        **client.headers,
+        'Authorization': f'Bearer {token}'
+    }
+
+    return client
