@@ -1,12 +1,13 @@
 import pytest
-from app import schemas
 from jose import jwt
+from app import schemas
+from app.config import settings
 
 
 # def test_get_all_users(client, test_user):
 #     res = client.get('/users')
 #     user = schemas.UserCreateResponse(res.json())
-SECRET_KEY = 'ab3a86bcb4c864d8a475d93d02be26bd647649c537dbfb06e807e8d6287a2d3f'
+# SECRET_KEY = 'ab3a86bcb4c864d8a475d93d02be26bd647649c537dbfb06e807e8d6287a2d3f'
 
 
 def test_create_user(client):
@@ -36,7 +37,11 @@ def test_user_login(client, test_user):
         data={'username': test_user['email'], 'password': test_user['password']}
     )
     res_data = schemas.Token(**res.json())
-    token_data = jwt.decode(res_data.access_token, SECRET_KEY, algorithms='HS256')
+    token_data = jwt.decode(
+        res_data.access_token,
+        settings.secret_key,
+        algorithms=settings.algorithm
+    )
     assert res.status_code == 200
     assert res_data.token_type == 'bearer'
     assert token_data.get('id') == test_user.get('user_id')

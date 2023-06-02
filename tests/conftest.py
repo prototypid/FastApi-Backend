@@ -2,13 +2,16 @@ import logging
 import pytest
 from app import models, oauth2
 from app.main import app
+from app.config import settings
 from app.database import Base, get_db
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 
 
-SQLALCHEMY_DATABASE_URL = 'postgresql://postgres:1324@localhost/testblog'
+SQLALCHEMY_DATABASE_URL = f'postgresql://{settings.database_username}:{settings.database_password}@' \
+                          f'{settings.database_hostname}:{settings.database_port}/{settings.database_name}'
+# SQLALCHEMY_DATABASE_URL = 'postgresql://postgres:1324@localhost/testblog'
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -38,37 +41,16 @@ def client(session):
 
 
 @pytest.fixture
-def test_posts(session):
+def test_user2(client):
+    user_data = {"email": "sanjeev123@gmail.com",
+                 "password": "password123"}
+    res = client.post("/users/", json=user_data)
 
-    posts_data = [{
-        "title": "first title",
-        "content": "first content",
-    }, {
-        "title": "2nd title",
-        "content": "2nd content",
-    },
-        {
-        "title": "3rd title",
-        "content": "3rd content",
-    }, {
-        "title": "3rd title",
-        "content": "3rd content",
-    }]
+    assert res.status_code == 201
 
-    def create_post_model(post):
-        return models.Post(**post)
-
-    post_map = map(create_post_model, posts_data)
-    posts = list(post_map)
-
-    session.add_all(posts)
-    # session.add_all([models.Post(title="first title", content="first content", owner_id=test_user['id']),
-    #                 models.Post(title="2nd title", content="2nd content", owner_id=test_user['id']),
-    #                 models.Post(title="3rd title", content="3rd content", owner_id=test_user['id'])])
-    session.commit()
-
-    posts = session.query(models.Post).all()
-    return posts
+    new_user = res.json()
+    new_user['password'] = user_data['password']
+    return new_user
 
 
 @pytest.fixture
@@ -105,3 +87,42 @@ def authorized_client(client, token):
     }
 
     return client
+
+
+@pytest.fixture
+def test_posts(session, test_user):
+
+    posts_data = [{
+        "title": "first title",
+        "content": "first content",
+        "author_id": test_user['id']
+    }, {
+        "title": "2nd title",
+        "content": "2nd content",
+        "author_id": test_user['id']
+    },
+        {
+        "title": "3rd title",
+        "content": "3rd content",
+        "author_id": test_user['id']
+        }, {
+        "title": "3rd title",
+        "content": "3rd content",
+        "author_id": test_user['id']
+
+        }]
+
+    def create_post_model(post):
+        return models.Post(**post)
+
+    post_map = map(create_post_model, posts_data)
+    posts = list(post_map)
+
+    session.add_all(posts)
+    # session.add_all([models.Post(title="first title", content="first content", owner_id=test_user['id']),
+    #                 models.Post(title="2nd title", content="2nd content", owner_id=test_user['id']),
+    #                 models.Post(title="3rd title", content="3rd content", owner_id=test_user['id'])])
+    session.commit()
+
+    posts = session.query(models.Post).all()
+    return posts
