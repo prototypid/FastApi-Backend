@@ -24,8 +24,7 @@ def create_new_post(
         db: Session = Depends(get_db),
         user=Depends(oauth2.get_current_user)
 ):
-    print(user)
-    post = models.Post(**data.dict())
+    post = models.Post(author_id=user.id, **data.dict())
     db.add(post)
     db.commit()
     db.refresh(post)
@@ -51,10 +50,17 @@ def delete_post_with_post_id(
         user=Depends(oauth2.get_current_user)
 ):
     post_query = db.query(models.Post).filter(models.Post.id == post_id)
-    if post_query.first() is None:
+    post = post_query.first()
+    if post is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'Post wit id {post_id} was not found!'
+        )
+
+    if post.author_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='Not authorized to perform requested actions.'
         )
 
     post_query.delete(synchronize_session=False)
@@ -74,6 +80,12 @@ def update_post_with_id(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'Post with id {post_id} was not found!'
+        )
+
+    if post.author_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='Not authorized to perform requested action.'
         )
     post_query.update(data.dict(), synchronize_session=False)
     db.commit()
