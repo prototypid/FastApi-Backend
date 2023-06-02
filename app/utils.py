@@ -8,4 +8,4 @@ def hash_pass(password):
 
 
 def verify_pass(password, hashed_pass):
-    pass_context.verify(password, hashed_pass)
+    return pass_context.verify(password, hashed_pass)
