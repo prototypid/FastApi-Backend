@@ -1,0 +1,28 @@
+version: '3'
+services:
+  api:
+    build: .
+    ports:
+      - 8000:8000
+    depends_on:
+    - postgres
+    environment:
+      - DATABASE_HOSTNAME=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_PASSWORD=1324
+      - DATABASE_NAME=blog
+      - DATABASE_USERNAME=postgres
+      - ALGORITHM=HS256
+      - SECRET_KEY=ab3a86bcb4c864d8a475d93d02be26bd647649c537dbfb06e807e8d6287a2d3f
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=1324
+      - POSTGRES_DB=blog
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+
+volumes:
+  postgres-db:
